@@ -1,24 +1,40 @@
-import logo from './logo.svg';
-import './App.css';
+import { Container } from "@material-ui/core";
+import { useEffect, useState } from "react";
+import AdicionarNovo from "./components/adicionarNovo.component";
+import ItemComponent from "./components/item.component";
+import getTodos from "./services/todo.service";
 
 function App() {
+  const [itens, setItens] = useState([]);
+
+  const handleAdd = (textoAtual) => {
+    let novoState = [];
+    novoState.push(textoAtual);
+    novoState = novoState.concat(itens);
+    setItens(novoState);
+  }
+
+  const handleExcluir = (index) => {
+    let novoState = [];
+    novoState = novoState.concat(itens);
+    novoState.splice(index, 1);
+    setItens(novoState);
+  }
+
+  const handleInit = async () => {
+    const listApi = await getTodos();
+    setItens(listApi.map((item) => { return item.title }));
+  }
+
+  useEffect(() => {
+    handleInit();
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Container maxWidth="sm">
+      <AdicionarNovo onAdd={handleAdd} />
+      {itens.map((item, index) => (<ItemComponent texto={item} index={index} onExcluir={handleExcluir} />))}
+    </Container>
   );
 }
 
